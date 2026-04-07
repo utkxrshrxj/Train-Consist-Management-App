@@ -1,28 +1,48 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-class Bogie {
-    private String name;
-    private int capacity;
+// Step 1: Define a custom runtime exception
+class CargoSafetyException extends RuntimeException {
+    public CargoSafetyException(String message) {
+        super(message);
+    }
+}
 
-    public Bogie(String name, int capacity) {
-        this.name = name;
-        this.capacity = capacity;
+// Step 2: Goods Bogie class with cargo assignment logic
+class GoodsBogie {
+    private String type;
+    private String cargo;
+
+    public GoodsBogie(String type) {
+        this.type = type;
     }
 
-    public String getName() {
-        return name;
+    public String getType() {
+        return type;
     }
 
-    public int getCapacity() {
-        return capacity;
+    public String getCargo() {
+        return cargo;
+    }
+
+    // Method to assign cargo with validation
+    public void assignCargo(String cargo) {
+        try {
+            if (type.equalsIgnoreCase("Rectangular") && cargo.equalsIgnoreCase("Petroleum")) {
+                throw new CargoSafetyException("Unsafe assignment: Rectangular bogie cannot carry Petroleum!");
+            }
+            this.cargo = cargo;
+            System.out.println(type + " bogie successfully assigned cargo: " + cargo);
+        } catch (CargoSafetyException e) {
+            System.out.println("Error assigning cargo: " + e.getMessage());
+        } finally {
+            System.out.println("Cargo assignment attempt completed for bogie type: " + type);
+        }
     }
 
     @Override
     public String toString() {
-        return name + " Capacity: " + capacity;
+        return type + " carrying " + (cargo == null ? "No Cargo" : cargo);
     }
 }
 
@@ -30,40 +50,24 @@ public class TrainConsistManagementApp {
     public static void main(String[] args) {
         System.out.println("=== Train Consist Management App ===");
 
-        // Step 1: Create a List of Bogies
-        List<Bogie> bogies = new ArrayList<>();
-        bogies.add(new Bogie("Sleeper", 72));
-        bogies.add(new Bogie("AC Chair", 54));
-        bogies.add(new Bogie("First Class", 24));
+        // Step 3: Create goods bogies
+        List<GoodsBogie> goodsBogies = new ArrayList<>();
+        GoodsBogie cylindrical = new GoodsBogie("Cylindrical");
+        GoodsBogie rectangular = new GoodsBogie("Rectangular");
 
-        // Step 2: Display bogies
-        System.out.println("\nBogies in Train:");
-        for (Bogie bogie : bogies) {
+        goodsBogies.add(cylindrical);
+        goodsBogies.add(rectangular);
+
+        // Step 4: Assign cargo safely
+        System.out.println("\nAssigning Cargo:");
+        cylindrical.assignCargo("Petroleum");   // Safe
+        rectangular.assignCargo("Petroleum");   // Unsafe, triggers exception
+        rectangular.assignCargo("Coal");        // Safe
+
+        // Step 5: Display final bogie states
+        System.out.println("\nFinal Goods Bogies in Train:");
+        for (GoodsBogie bogie : goodsBogies) {
             System.out.println(bogie);
-        }
-
-        // Step 3: Regex Validation for Train ID and Cargo Code
-        String trainId = "TRN-1234";      // Example valid input
-        String cargoCode = "PET-AB";      // Example valid input
-
-        // Define regex patterns
-        Pattern trainIdPattern = Pattern.compile("TRN-\\d{4}");
-        Pattern cargoCodePattern = Pattern.compile("PET-[A-Z]{2}");
-
-        // Validate Train ID
-        Matcher trainMatcher = trainIdPattern.matcher(trainId);
-        if (trainMatcher.matches()) {
-            System.out.println("\nTrain ID " + trainId + " is VALID.");
-        } else {
-            System.out.println("\nTrain ID " + trainId + " is INVALID.");
-        }
-
-        // Validate Cargo Code
-        Matcher cargoMatcher = cargoCodePattern.matcher(cargoCode);
-        if (cargoMatcher.matches()) {
-            System.out.println("Cargo Code " + cargoCode + " is VALID.");
-        } else {
-            System.out.println("Cargo Code " + cargoCode + " is INVALID.");
         }
     }
 }
